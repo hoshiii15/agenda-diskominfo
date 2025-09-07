@@ -1,7 +1,3 @@
-hoshiii15: buatkan readme.md mengenai aplikasi ini untuk saya push ke github yang lengkap ya mengenai backend dan frontendnya
-
-GitHub Copilot: Berikut adalah draft README.md yang lengkap untuk aplikasi Anda, mencakup penjelasan backend dan frontend, fitur utama, cara instalasi, serta instruksi menjalankan aplikasi. Setelah Anda review, saya akan langsung membuatkan file-nya di workspace.
-
 ---
 
 # ExpressNextTailwind
