@@ -1,0 +1,1301 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+    <meta charset='utf-8' />
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Kalender Agenda Diskominfo</title>
+    <!-- FullCalendar CSS with fallback -->
+    <link href='https://cdnjs.cloudflare.com/ajax/libs/fullcalendar/6.1.8/index.global.min.css' rel='stylesheet'
+        crossorigin="anonymous" />
+    <!-- FullCalendar JS -->
+    <script src='https://cdnjs.cloudflare.com/ajax/libs/fullcalendar/6.1.8/index.global.min.js'
+        crossorigin="anonymous"></script>
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet"
+        crossorigin="anonymous" />
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+            color: #1e293b;
+            min-height: 100vh;
+            overflow-x: hidden;
+            /* Prevent horizontal scroll */
+        }
+
+        .header {
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #334155 100%);
+            color: #fff;
+            padding: 60px 24px 50px 24px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 10px 25px -3px rgba(0, 0, 0, 0.1);
+        }
+
+        .header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url("data:image/svg+xml,%3Csvg width='80' height='80' viewBox='0 0 80 80' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.03'%3E%3Cpath d='M0 40h80v40H0zM20 0h20v20H20zM60 20h20v20H60z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+            animation: float 20s ease-in-out infinite;
+        }
+
+        .header-content {
+            position: relative;
+            z-index: 1;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .header h1 {
+            font-size: 3rem;
+            font-weight: 800;
+            margin: 0 0 16px 0;
+            letter-spacing: -0.03em;
+            line-height: 1.1;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .header p {
+            margin: 0;
+            font-weight: 400;
+            font-size: 1.25rem;
+            color: rgba(255, 255, 255, 0.9);
+            letter-spacing: 0.01em;
+        }
+
+        .calendar-container {
+            max-width: 1400px;
+            margin: -30px auto 80px auto;
+            padding: 0 24px;
+            position: relative;
+        }
+
+        #calendar {
+            background: #ffffff;
+            border-radius: 20px;
+            box-shadow:
+                0 25px 50px -12px rgba(0, 0, 0, 0.15),
+                0 0 0 1px rgba(255, 255, 255, 0.8);
+            border: none;
+            padding: 40px;
+            position: relative;
+            backdrop-filter: blur(10px);
+        }
+
+        /* FullCalendar Professional Styling */
+        .fc {
+            font-family: 'Inter', sans-serif;
+        }
+
+        .fc-header-toolbar {
+            margin-bottom: 2.5rem;
+            padding: 0;
+            gap: 16px;
+        }
+
+        .fc-toolbar-title {
+            font-size: 2.25rem;
+            font-weight: 800;
+            color: #0f172a;
+            letter-spacing: -0.03em;
+            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+        }
+
+        .fc-button-primary {
+            background: linear-gradient(135deg, #475569 0%, #334155 100%);
+            border: none;
+            border-radius: 12px;
+            font-weight: 600;
+            font-size: 0.9rem;
+            padding: 12px 20px;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .fc-button-primary::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: left 0.5s;
+        }
+
+        .fc-button-primary:hover::before {
+            left: 100%;
+        }
+
+        .fc-button-primary:not(:disabled):hover {
+            background: linear-gradient(135deg, #334155 0%, #1e293b 100%);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 15px -3px rgba(0, 0, 0, 0.2);
+        }
+
+        .fc-button-primary:not(:disabled):active {
+            transform: translateY(0);
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+
+        .fc-today-button {
+            background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%) !important;
+        }
+
+        .fc-today-button:hover {
+            background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%) !important;
+        }
+
+        /* Calendar Grid */
+        .fc-theme-standard td,
+        .fc-theme-standard th {
+            border-color: #e5e7eb;
+            border-width: 1px;
+        }
+
+        .fc-col-header-cell {
+            background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+            font-weight: 700;
+            color: #475569;
+            font-size: 0.95rem;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            padding: 20px 12px;
+            border-radius: 8px 8px 0 0;
+            position: relative;
+        }
+
+        .fc-daygrid-day {
+            background: #ffffff;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            cursor: pointer;
+            position: relative;
+            min-height: 120px;
+            border: 1px solid #e5e7eb;
+        }
+
+        .fc-daygrid-day:hover {
+            background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+            transform: scale(1.02);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            z-index: 2;
+        }
+
+        .fc-day-today {
+            background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%) !important;
+            border: 2px solid #f59e0b !important;
+            box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.1);
+        }
+
+        .fc-daygrid-day-number {
+            color: #64748b;
+            font-weight: 600;
+            font-size: 1rem;
+            padding: 12px;
+            position: absolute;
+            top: 0;
+            left: 0;
+            z-index: 1;
+        }
+
+        .fc-day-today .fc-daygrid-day-number {
+            color: #92400e;
+            font-weight: 800;
+        }
+
+        /* Hide default events */
+        .fc-daygrid-event {
+            display: none !important;
+        }
+
+        /* Style days with events */
+        .fc-daygrid-day.has-events {
+            background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%) !important;
+            border: 2px solid #3b82f6 !important;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+            position: relative;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .fc-daygrid-day.has-events:hover {
+            background: linear-gradient(135deg, #bfdbfe 0%, #93c5fd 100%) !important;
+            border-color: #2563eb !important;
+            transform: scale(1.05);
+            box-shadow: 0 8px 25px rgba(59, 130, 246, 0.25);
+            z-index: 3;
+        }
+
+        .fc-daygrid-day.has-events .fc-daygrid-day-number {
+            color: #1e40af !important;
+            font-weight: 800 !important;
+            text-shadow: 0 1px 2px rgba(255, 255, 255, 0.8);
+        }
+
+        /* Event count badge */
+        .fc-daygrid-day.has-events::after {
+            content: attr(data-event-count);
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+            color: white;
+            font-size: 11px;
+            font-weight: 700;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 4;
+            box-shadow: 0 3px 8px rgba(59, 130, 246, 0.4);
+            animation: pulse 2s infinite;
+        }
+
+        /* Today with events */
+        .fc-day-today.has-events {
+            background: linear-gradient(135deg, #fef3c7 0%, #fbbf24 100%) !important;
+            border-color: #f59e0b !important;
+        }
+
+        .fc-day-today.has-events::after {
+            background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+        }
+
+        /* Event List Modal */
+        .event-list-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: rgba(0, 0, 0, 0.6);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+            backdrop-filter: blur(8px);
+            animation: fadeIn 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .event-list-content {
+            background: #ffffff;
+            padding: 32px;
+            border-radius: 24px;
+            max-width: 520px;
+            width: 90vw;
+            max-height: 85vh;
+            overflow-y: auto;
+            box-shadow:
+                0 25px 50px -12px rgba(0, 0, 0, 0.25),
+                0 0 0 1px rgba(255, 255, 255, 0.1);
+            animation: slideUp 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+        }
+
+        .event-list-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 24px;
+            padding-bottom: 20px;
+            border-bottom: 2px solid #f1f5f9;
+        }
+
+        .event-list-title {
+            margin: 0;
+            font-size: 1.5rem;
+            color: #0f172a;
+            font-weight: 800;
+            flex: 1;
+        }
+
+        .event-list-date {
+            font-size: 0.9rem;
+            color: #64748b;
+            font-weight: 600;
+            background: #f8fafc;
+            padding: 6px 12px;
+            border-radius: 20px;
+        }
+
+        .event-list-items {
+            margin-bottom: 20px;
+        }
+
+        .event-item {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            padding: 16px;
+            border: 2px solid #f1f5f9;
+            border-radius: 16px;
+            margin-bottom: 12px;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .event-item::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(59, 130, 246, 0.1), transparent);
+            transition: left 0.5s;
+        }
+
+        .event-item:hover {
+            background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+            border-color: #3b82f6;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(59, 130, 246, 0.15);
+        }
+
+        .event-item:hover::before {
+            left: 100%;
+        }
+
+        .event-item-icon {
+            width: 48px;
+            height: 48px;
+            background: linear-gradient(135deg, #3b82f6, #2563eb);
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+        }
+
+        .event-item-content {
+            flex: 1;
+        }
+
+        .event-item-title {
+            font-weight: 700;
+            color: #0f172a;
+            margin: 0 0 6px 0;
+            font-size: 1.1rem;
+            line-height: 1.3;
+        }
+
+        .event-item-time {
+            font-size: 0.85rem;
+            color: #64748b;
+            margin: 0;
+            font-weight: 500;
+        }
+
+        .event-list-close {
+            margin-top: 20px;
+            background: linear-gradient(135deg, #64748b 0%, #475569 100%);
+            color: #ffffff;
+            padding: 14px 28px;
+            border: none;
+            border-radius: 12px;
+            font-weight: 700;
+            font-size: 0.95rem;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            width: 100%;
+            box-shadow: 0 4px 12px rgba(100, 116, 139, 0.3);
+        }
+
+        .event-list-close:hover {
+            background: linear-gradient(135deg, #475569 0%, #334155 100%);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(100, 116, 139, 0.4);
+        }
+
+        /* Detail Modal */
+        .custom-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: rgba(0, 0, 0, 0.6);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 10000;
+            backdrop-filter: blur(8px);
+            animation: fadeIn 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .modal-content {
+            background: #ffffff;
+            padding: 40px;
+            border-radius: 24px;
+            max-width: 560px;
+            width: 90vw;
+            max-height: 85vh;
+            overflow-y: auto;
+            box-shadow:
+                0 25px 50px -12px rgba(0, 0, 0, 0.25),
+                0 0 0 1px rgba(255, 255, 255, 0.1);
+            animation: slideUp 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+        }
+
+        .modal-header {
+            display: flex;
+            align-items: flex-start;
+            gap: 16px;
+            margin-bottom: 32px;
+        }
+
+        .modal-icon {
+            width: 56px;
+            height: 56px;
+            background: linear-gradient(135deg, #3b82f6, #2563eb);
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            box-shadow: 0 8px 20px rgba(59, 130, 246, 0.3);
+        }
+
+        .modal-title {
+            margin: 0;
+            font-size: 1.75rem;
+            color: #0f172a;
+            font-weight: 800;
+            line-height: 1.2;
+        }
+
+        .modal-details {
+            margin-bottom: 32px;
+        }
+
+        .detail-item {
+            display: flex;
+            gap: 16px;
+            margin-bottom: 20px;
+            padding: 16px;
+            background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+            border-radius: 12px;
+            border: 1px solid #e2e8f0;
+        }
+
+        .detail-label {
+            font-weight: 700;
+            color: #475569;
+            min-width: 100px;
+            flex-shrink: 0;
+        }
+
+        .detail-value {
+            color: #0f172a;
+            line-height: 1.6;
+            font-weight: 500;
+        }
+
+        .modal-close-btn {
+            background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+            color: #ffffff;
+            padding: 16px 32px;
+            border: none;
+            border-radius: 12px;
+            font-weight: 700;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+            width: 100%;
+        }
+
+        .modal-close-btn:hover {
+            background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(59, 130, 246, 0.4);
+        }
+
+        /* Animations */
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+
+            to {
+                opacity: 1;
+            }
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(32px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes pulse {
+
+            0%,
+            100% {
+                opacity: 1;
+                transform: scale(1);
+            }
+
+            50% {
+                opacity: 0.8;
+                transform: scale(1.1);
+            }
+        }
+
+        @keyframes float {
+
+            0%,
+            100% {
+                transform: translateY(0px);
+            }
+
+            50% {
+                transform: translateY(-10px);
+            }
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            body {
+                overflow-x: hidden;
+            }
+
+            .header {
+                padding: 32px 16px 24px 16px;
+            }
+
+            .header h1 {
+                font-size: 2.25rem;
+            }
+
+            .header p {
+                font-size: 1rem;
+            }
+
+            .calendar-container {
+                padding: 0 8px;
+                margin-top: -20px;
+                width: 100%;
+                box-sizing: border-box;
+            }
+
+            #calendar {
+                padding: 12px;
+                border-radius: 16px;
+                width: 100%;
+                box-sizing: border-box;
+                overflow: hidden;
+            }
+
+            .fc {
+                width: 100% !important;
+                min-width: unset !important;
+            }
+
+            .fc-view-harness {
+                overflow: hidden !important;
+            }
+
+            .fc-toolbar-title {
+                font-size: 1.4rem;
+            }
+
+            .fc-header-toolbar {
+                flex-direction: column;
+                gap: 12px;
+                margin-bottom: 1.5rem;
+            }
+
+            .fc-toolbar-chunk {
+                display: flex;
+                justify-content: center;
+                flex-wrap: wrap;
+                gap: 8px;
+            }
+
+            .fc-button-primary {
+                padding: 8px 12px;
+                font-size: 0.8rem;
+                border-radius: 8px;
+            }
+
+            /* Force table to fit screen width */
+            .fc-daygrid-body,
+            .fc-scrollgrid,
+            .fc-scrollgrid-sync-table,
+            table {
+                width: 100% !important;
+                table-layout: fixed !important;
+            }
+
+            .fc-col-header-cell,
+            .fc-daygrid-day {
+                width: 14.28% !important;
+                /* 100% / 7 days */
+                min-width: unset !important;
+                max-width: unset !important;
+                padding: 2px !important;
+            }
+
+            .fc-daygrid-day {
+                min-height: 50px;
+                position: relative;
+                overflow: hidden;
+            }
+
+            .fc-daygrid-day-number {
+                font-size: 0.8rem;
+                padding: 4px;
+                text-align: center;
+                width: 100%;
+                box-sizing: border-box;
+            }
+
+            .fc-col-header-cell {
+                padding: 8px 2px !important;
+                font-size: 0.7rem;
+                text-align: center;
+            }
+
+            /* Mobile-specific event badge positioning */
+            .fc-daygrid-day.has-events::after {
+                width: 16px;
+                height: 16px;
+                font-size: 8px;
+                top: 4px;
+                right: 4px;
+                border-radius: 50%;
+            }
+
+            /* Ensure no horizontal overflow */
+            .fc-daygrid-day-frame {
+                overflow: hidden;
+            }
+
+            /* Mobile modal adjustments */
+            .event-list-content,
+            .modal-content {
+                padding: 20px;
+                margin: 12px;
+                border-radius: 20px;
+                max-height: 90vh;
+                width: calc(100vw - 24px);
+                box-sizing: border-box;
+            }
+
+            .event-list-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 8px;
+                margin-bottom: 16px;
+            }
+
+            .event-list-title {
+                font-size: 1.25rem;
+            }
+
+            .event-list-date {
+                font-size: 0.8rem;
+                padding: 4px 8px;
+            }
+
+            .event-item {
+                padding: 12px;
+                gap: 12px;
+                border-radius: 12px;
+            }
+
+            .event-item-icon {
+                width: 40px;
+                height: 40px;
+                border-radius: 12px;
+                flex-shrink: 0;
+            }
+
+            .event-item-title {
+                font-size: 1rem;
+                line-height: 1.2;
+            }
+
+            .event-item-time {
+                font-size: 0.8rem;
+            }
+
+            .modal-header {
+                gap: 12px;
+                margin-bottom: 20px;
+            }
+
+            .modal-icon {
+                width: 48px;
+                height: 48px;
+                border-radius: 12px;
+                flex-shrink: 0;
+            }
+
+            .modal-title {
+                font-size: 1.35rem;
+                line-height: 1.2;
+            }
+
+            .detail-item {
+                flex-direction: column;
+                gap: 6px;
+                padding: 12px;
+                margin-bottom: 12px;
+            }
+
+            .detail-label {
+                min-width: auto;
+                font-size: 0.9rem;
+            }
+
+            .detail-value {
+                font-size: 0.9rem;
+            }
+
+            .modal-close-btn,
+            .event-list-close {
+                padding: 12px 20px;
+                font-size: 0.9rem;
+                margin-top: 16px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .header {
+                padding: 24px 12px 20px 12px;
+            }
+
+            .header h1 {
+                font-size: 1.85rem;
+            }
+
+            .header p {
+                font-size: 0.95rem;
+            }
+
+            .calendar-container {
+                padding: 0 6px;
+                margin-top: -16px;
+            }
+
+            #calendar {
+                padding: 8px;
+                border-radius: 12px;
+            }
+
+            .fc-toolbar-title {
+                font-size: 1.2rem;
+            }
+
+            .fc-button-primary {
+                padding: 6px 10px;
+                font-size: 0.75rem;
+            }
+
+            .fc-daygrid-day {
+                min-height: 45px;
+            }
+
+            .fc-daygrid-day-number {
+                font-size: 0.75rem;
+                padding: 3px;
+            }
+
+            .fc-col-header-cell {
+                padding: 6px 1px !important;
+                font-size: 0.65rem;
+            }
+
+            .fc-daygrid-day.has-events::after {
+                width: 14px;
+                height: 14px;
+                font-size: 7px;
+                top: 3px;
+                right: 3px;
+            }
+
+            /* Ultra mobile modal adjustments */
+            .event-list-content,
+            .modal-content {
+                padding: 16px;
+                margin: 6px;
+                max-height: 95vh;
+                width: calc(100vw - 12px);
+            }
+
+            .event-list-title {
+                font-size: 1.1rem;
+            }
+
+            .event-item {
+                padding: 10px;
+                gap: 10px;
+            }
+
+            .event-item-icon {
+                width: 36px;
+                height: 36px;
+                border-radius: 10px;
+            }
+
+            .event-item-title {
+                font-size: 0.95rem;
+            }
+
+            .event-item-time {
+                font-size: 0.75rem;
+            }
+
+            .modal-title {
+                font-size: 1.2rem;
+            }
+
+            .detail-item {
+                padding: 10px;
+            }
+
+            .detail-label,
+            .detail-value {
+                font-size: 0.85rem;
+            }
+        }
+
+        /* Landscape mobile optimization */
+        @media (max-width: 768px) and (orientation: landscape) {
+            .header {
+                padding: 16px 16px 12px 16px;
+            }
+
+            .header h1 {
+                font-size: 1.6rem;
+            }
+
+            .header p {
+                font-size: 0.85rem;
+            }
+
+            .calendar-container {
+                margin-top: -10px;
+            }
+
+            .fc-daygrid-day {
+                min-height: 40px;
+            }
+
+            .event-list-content,
+            .modal-content {
+                max-height: 80vh;
+            }
+        }
+
+        /* Touch improvements for mobile */
+        @media (hover: none) and (pointer: coarse) {
+            .fc-daygrid-day:hover {
+                transform: none;
+                box-shadow: none;
+            }
+
+            .fc-daygrid-day.has-events:hover {
+                transform: none;
+                box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.3);
+            }
+
+            .event-item:hover {
+                transform: none;
+                box-shadow: 0 2px 8px rgba(59, 130, 246, 0.15);
+            }
+
+            .fc-button-primary:hover {
+                transform: none;
+            }
+
+            .modal-close-btn:hover,
+            .event-list-close:hover {
+                transform: none;
+            }
+
+            /* Increase tap targets for mobile */
+            .fc-daygrid-day {
+                cursor: pointer;
+            }
+
+            .fc-button-primary {
+                min-height: 36px;
+                min-width: 36px;
+            }
+
+            .event-item {
+                min-height: 56px;
+            }
+
+            .modal-close-btn,
+            .event-list-close {
+                min-height: 44px;
+            }
+        }
+
+        /* Force no horizontal scroll on all elements */
+        @media (max-width: 768px) {
+            * {
+                box-sizing: border-box;
+            }
+
+            .fc-scrollgrid-section>* {
+                overflow: hidden !important;
+            }
+
+            .fc-scroller {
+                overflow-x: hidden !important;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="header">
+        <div class="header-content">
+            <h1>Kalender Agenda Diskominfo</h1>
+            <p>Lihat semua agenda penting dengan mudah</p>
+        </div>
+    </div>
+
+    <div class="calendar-container">
+        <div id='calendar'></div>
+    </div>
+
+    <script>
+        // Fallback for FullCalendar if CDN fails
+        document.addEventListener('DOMContentLoaded', function () {
+            // Check if FullCalendar loaded
+            if (typeof FullCalendar === 'undefined') {
+                console.error('FullCalendar failed to load from CDN');
+                // Create fallback message
+                document.getElementById('calendar').innerHTML = `
+                    <div style="text-align: center; padding: 40px; background: #fee2e2; border-radius: 12px; color: #dc2626;">
+                        <h3>Kalender tidak dapat dimuat</h3>
+                        <p>Mohon periksa koneksi internet Anda atau coba refresh halaman.</p>
+                        <button onclick="location.reload()" style="background: #dc2626; color: white; padding: 10px 20px; border: none; border-radius: 6px; cursor: pointer;">
+                            Refresh Halaman
+                        </button>
+                    </div>
+                `;
+                return;
+            }
+
+            const calendarEl = document.getElementById('calendar');
+            let allEvents = [];
+
+            const calendar = new FullCalendar.Calendar(calendarEl, {
+                initialView: 'dayGridMonth',
+                locale: 'id',
+                events: function (info, successCallback, failureCallback) {
+                    fetch('http://localhost:5000/api/agenda/calendar/events')
+                        .then(response => {
+                            if (!response.ok) {
+                                throw new Error('Network response was not ok');
+                            }
+                            return response.json();
+                        })
+                        .then(data => {
+                            allEvents = data;
+                            successCallback(data);
+                            setTimeout(() => markDaysWithEvents(data), 100);
+                        })
+                        .catch(error => {
+                            console.error('Error loading events:', error);
+                            failureCallback(error);
+                            // Show error message in calendar
+                            document.getElementById('calendar').innerHTML = `
+                                <div style="text-align: center; padding: 40px; background: #fef3c7; border-radius: 12px; color: #92400e;">
+                                    <h3>Tidak dapat memuat agenda</h3>
+                                    <p>Pastikan server API berjalan di localhost:5000</p>
+                                    <button onclick="location.reload()" style="background: #f59e0b; color: white; padding: 10px 20px; border: none; border-radius: 6px; cursor: pointer;">
+                                        Coba Lagi
+                                    </button>
+                                </div>
+                            `;
+                        });
+                },
+                headerToolbar: {
+                    left: 'prev,next today',
+                    center: 'title',
+                    right: 'dayGridMonth,timeGridWeek'
+                },
+                eventClick: function (info) {
+                    info.jsEvent.preventDefault();
+                    showEventDetail(info.event);
+                },
+                dateClick: function (info) {
+                    const clickedDate = info.dateStr;
+                    const dayEvents = allEvents.filter(event =>
+                        new Date(event.start).toISOString().split('T')[0] === clickedDate
+                    );
+                    if (dayEvents.length > 0) {
+                        showEventList(dayEvents, info.date);
+                    }
+                },
+                datesSet: function () {
+                    setTimeout(() => markDaysWithEvents(allEvents), 100);
+                }
+            });
+
+            calendar.render();
+
+            function markDaysWithEvents(events) {
+                // Clear existing markers
+                document.querySelectorAll('.fc-daygrid-day').forEach(cell => {
+                    cell.classList.remove('has-events');
+                    cell.removeAttribute('data-event-count');
+                });
+
+                // Group events by date
+                const eventsByDate = {};
+                events.forEach(event => {
+                    const date = new Date(event.start).toISOString().split('T')[0];
+                    if (!eventsByDate[date]) {
+                        eventsByDate[date] = [];
+                    }
+                    eventsByDate[date].push(event);
+                });
+
+                // Mark days with events
+                Object.entries(eventsByDate).forEach(([date, dayEvents]) => {
+                    const dayCell = document.querySelector(`[data-date="${date}"]`);
+                    if (dayCell) {
+                        dayCell.classList.add('has-events');
+                        dayCell.setAttribute('data-event-count', dayEvents.length);
+
+                        // Add click handler
+                        dayCell.addEventListener('click', function (e) {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            showEventList(dayEvents, new Date(date));
+                        });
+                    }
+                });
+            }
+
+            function showEventList(events, date) {
+                // Remove existing modal
+                const existingModal = document.getElementById('eventListModal');
+                if (existingModal) {
+                    existingModal.remove();
+                }
+
+                const modal = document.createElement('div');
+                modal.id = 'eventListModal';
+                modal.className = 'event-list-modal';
+
+                const formatDate = date.toLocaleDateString('id-ID', {
+                    weekday: 'long',
+                    year: 'numeric',
+                    month: 'long',
+                    day: 'numeric'
+                });
+
+                let eventListHtml = '';
+                events.forEach(event => {
+                    const eventTime = new Date(event.start).toLocaleTimeString('id-ID', {
+                        hour: '2-digit',
+                        minute: '2-digit'
+                    });
+
+                    // Try different possible location field names
+                    const location = event.extendedProps?.location ||
+                        event.extendedProps?.lokasi ||
+                        event.location ||
+                        event.lokasi ||
+                        'Lokasi tidak tersedia';
+
+                    eventListHtml += `
+                        <div class="event-item" onclick="showEventDetail(${JSON.stringify(event).replace(/"/g, '&quot;')})">
+                            <div class="event-item-icon">
+                                <svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="color: white;">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                                </svg>
+                            </div>
+                            <div class="event-item-content">
+                                <h4 class="event-item-title">${event.title}</h4>
+                                <p class="event-item-time">${eventTime} • ${location}</p>
+                            </div>
+                        </div>
+                    `;
+                });
+
+                modal.innerHTML = `
+                    <div class="event-list-content">
+                        <div class="event-list-header">
+                            <h3 class="event-list-title">Agenda Hari Ini</h3>
+                            <span class="event-list-date">${formatDate}</span>
+                        </div>
+                        <div class="event-list-items">
+                            ${eventListHtml}
+                        </div>
+                        <button class="event-list-close" onclick="closeEventList()">Tutup</button>
+                    </div>
+                `;
+
+                document.body.appendChild(modal);
+
+                // Close on background click
+                modal.addEventListener('click', function (e) {
+                    if (e.target === modal) {
+                        closeEventList();
+                    }
+                });
+            }
+
+            function showEventDetail(event) {
+                // Remove existing modal
+                const existingModal = document.getElementById('customModal');
+                if (existingModal) {
+                    existingModal.remove();
+                }
+
+                const modal = document.createElement('div');
+                modal.id = 'customModal';
+                modal.className = 'custom-modal';
+
+                const formatDateTime = new Date(event.start).toLocaleString('id-ID', {
+                    weekday: 'long',
+                    year: 'numeric',
+                    month: 'long',
+                    day: 'numeric',
+                    hour: '2-digit',
+                    minute: '2-digit'
+                });
+
+                // Try different possible field names for location and description
+                const location = event.extendedProps?.location ||
+                    event.extendedProps?.lokasi ||
+                    event.location ||
+                    event.lokasi ||
+                    event.extendedProps?.tempat ||
+                    event.tempat ||
+                    'Lokasi belum ditentukan';
+
+                const description = event.extendedProps?.description ||
+                    event.extendedProps?.deskripsi ||
+                    event.description ||
+                    event.deskripsi ||
+                    event.extendedProps?.keterangan ||
+                    event.keterangan ||
+                    'Tidak ada deskripsi tambahan';
+
+                modal.innerHTML = `
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <div class="modal-icon">
+                                <svg width="32" height="32" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="color: white;">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                                </svg>
+                            </div>
+                            <div>
+                                <h3 class="modal-title">${event.title}</h3>
+                            </div>
+                        </div>
+                        <div class="modal-details">
+                            <div class="detail-item">
+                                <span class="detail-label">📅 Waktu:</span>
+                                <span class="detail-value">${formatDateTime}</span>
+                            </div>
+                            <div class="detail-item">
+                                <span class="detail-label">📍 Lokasi:</span>
+                                <span class="detail-value">${location}</span>
+                            </div>
+                            <div class="detail-item">
+                                <span class="detail-label">📝 Deskripsi:</span>
+                                <span class="detail-value">${description}</span>
+                            </div>
+                        </div>
+                        <button class="modal-close-btn" onclick="closeEventDetail()">Tutup Detail</button>
+                    </div>
+                `;
+
+                // Debug: Log the event object to console
+                console.log('Event object:', event);
+                console.log('Extended props:', event.extendedProps);
+                console.log('Location found:', location);
+                console.log('Description found:', description);
+
+                document.body.appendChild(modal);
+
+                // Close on background click
+                modal.addEventListener('click', function (e) {
+                    if (e.target === modal) {
+                        closeEventDetail();
+                    }
+                });
+            }
+
+            // Global functions for modal controls
+            window.showEventList = showEventList;
+            window.showEventDetail = showEventDetail;
+
+            window.closeEventList = function () {
+                const modal = document.getElementById('eventListModal');
+                if (modal) {
+                    modal.style.animation = 'fadeOut 0.2s ease-in-out';
+                    setTimeout(() => modal.remove(), 200);
+                }
+            };
+
+            window.closeEventDetail = function () {
+                const modal = document.getElementById('customModal');
+                if (modal) {
+                    modal.style.animation = 'fadeOut 0.2s ease-in-out';
+                    setTimeout(() => modal.remove(), 200);
+                }
+            };
+
+            // Keyboard navigation
+            document.addEventListener('keydown', function (e) {
+                if (e.key === 'Escape') {
+                    closeEventList();
+                    closeEventDetail();
+                }
+            });
+        });
+
+        // Additional fadeOut animation
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes fadeOut {
+                from { opacity: 1; }
+                to { opacity: 0; }
+            }
+        `;
+        document.head.appendChild(style);
+    </script>
+</body>
+
+</html>
